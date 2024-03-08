@@ -1,10 +1,13 @@
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.KeyStore.Entry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-
 import java.util.Objects;
+import java.util.Scanner;
+
 
 class Product{
     int stocks = 10;
@@ -15,6 +18,7 @@ class Product{
     private int soldOut;
     private double profit;
 
+    //Assigning values to variables;
     public Product(){}
     public Product(int productID, String productName, double cP, double sP) {
         ProductID = productID;
@@ -22,6 +26,15 @@ class Product{
         CP = cP;
         SP = sP;
     }
+    public Product(int productID, String productName, double cP, double sP,int Stocks) {
+        ProductID = productID;
+        ProductName = productName;
+        CP = cP;
+        SP = sP;
+        stocks = Stocks;
+        
+    }
+    //getter setters to assign & retrieve values
     public void setStocks(int stocks) { this.stocks = stocks; }
     public int getStocks() { return this.stocks; }
 
@@ -41,28 +54,86 @@ class Product{
         this.profit = (this.SP - this.CP)*this.soldOut;
         return this.profit; }
 
-    public boolean equals(Object o)
+
+    /* equals(Object obj) -> boolean : This method checks that two product objects contains same values or not  if same values present 
+     * It returns true otherwise it returns false
+    */
+    @Override
+    public boolean equals(Object obj)
     {
-        if(this==o)
+        if(this==obj)
             return true;
-        if(o==null || getClass()!=o.getClass())
+        if(obj==null || getClass()!=obj.getClass())
             return false;
-        Product product = (Product)o;
-        return ProductID == product.ProductID && Double.compare(product.CP, CP)==0 && Double.compare(product.SP, SP)==0 && Objects.equals(ProductName , product.ProductName);
+        Product product = (Product)obj;
+        return ProductID == product.ProductID && Double.compare(product.CP, CP)==0 && Double.compare(product.SP, SP)==0 && Objects.equals(ProductName , product.ProductName) && stocks==product.stocks;
         
     }
+    /*
+     * hashCode returns the hash value for the given values.
+     * Generates a hash code for a sequence of input values. The hash code is generated as if all the input values were placed into an array, 
+     * and that array were hashed by calling Arrays.hashCode(Object []).
+     * This method is useful for implementing Object.hashCode() on objects containing multiple fields.
+     */
+    @Override
     public int hashCode(){
-        return Objects.hash(ProductID,ProductName,CP,SP);
+        return Objects.hash(ProductID,ProductName,CP,SP,stocks);
     }
+    @Override
     public String toString(){
-        return "Product{"+"ID="+ProductID+", name="+ProductName+", CP="+CP+", SP="+SP+"}";
+        return "Product{"+"ID="+ProductID+", name="+ProductName+", CP="+CP+", SP="+SP+", Stocks="+stocks+"}";
     }
 }
 public class FileRead {
-    
+    private static HashSet<Product> updatedProductList(HashSet<Product> al)
+    {
+        HashMap<Integer, Product> hm = new HashMap<Integer,Product>();
+        HashMap<Integer, Integer> hmUpdate = new HashMap<Integer,Integer>();
+        
+        
+        int stocks; Product pd;
+        for(Product i: al){
+        	
+        	if(hm.containsKey(i.getProductID())) {
+        		System.out.println(i.getProductName());
+        		hmUpdate.put(i.getProductID(), i.stocks);
+        		continue;
+        	}
+        	System.out.println(i.getStocks());
+        	hm.put(i.getProductID(), i);
+        }
+
+        for(java.util.Map.Entry<Integer, Product> entry : hm.entrySet())
+        {
+        	for(java.util.Map.Entry<Integer, Integer> entry1 : hmUpdate.entrySet())
+            {
+        		if(hm.containsKey(entry1.getKey())) {
+            		entry.getValue().setStocks(entry1.getValue());
+            	}
+            }
+        }
+        for(java.util.Map.Entry<Integer, Product> entry : hm.entrySet())
+        {
+        	System.out.println(entry.getValue());
+        }
+        for(java.util.Map.Entry<Integer, Integer> entry1 : hmUpdate.entrySet())
+        {
+        		System.out.println(entry1.getKey() +" "+ entry1.getValue());
+        }
+        
+        return al;
+    }
+    /*
+     * This addToFile method is used to add the contents of ArrayList to an existing file.
+     * It contains file operations so it throws IOException.
+     * it contains removeDuplicates method to get unique objects of Product.
+     * return true if all operations done successfully
+     * otherwise returns
+     */
+
     private static boolean addToFile(ArrayList<Product> al) throws IOException
     {
-        String file = "src\\File.csv";
+        String file = "File.csv";
         FileWriter fw = null;
         try {
             fw = new FileWriter(file);
@@ -74,39 +145,45 @@ public class FileRead {
                 String name = ((Product)product).getProductName();
                 double cp = ((Product)product).getCP();
                 double sp = ((Product)product).getSP();
+                int stocks = ((Product)product).getStocks();
 
-                String s = id + ","+name+","+cp+","+sp+"\n";
+                String s = id + ","+name+","+cp+","+sp+","+stocks+"\n";
                 fw.append(s);
-                System.out.println("File Written Successfully");
+                System.out.println("Record Written Successfully");
             }
             
         } catch (FileNotFoundException e) {
             System.out.println("Updation failed");
+            //e.printStackTrace();
             return false;
         } catch (IOException e) {
             System.out.println("Updation failed");
             return false;
         }
         finally{
-            fw.close();
+            if(fw!=null)
+                fw.close();
         }
         return true;
     }
-
+    /*
+     * remove duplicates
+     */
     private static ArrayList<Product> removeDuplicates(ArrayList<Product> al)
     {
         HashSet<Product> ts = new HashSet<>(al);
+        ts = updatedProductList(ts);
         return new ArrayList<Product>(ts);
     }
     public static void main(String[] args) {
         ArrayList<Product> al = new ArrayList<>();
-        Product p = new Product(1,"Rice", 30, 50);
-        Product p1 = new Product(2,"Sugar", 30, 40);
-        Product p2 = new Product(1,"Rice", 30, 50);
+        Product p = new Product(1,"Rice", 30, 50,20);
+        Product p1 = new Product(2,"Sugar", 30, 40,25);
+        Product p2 = new Product(1,"Rice", 30, 50,15);
         al.add(p);
         al.add(p1);
         al.add(p2);
-        
+        System.out.println(al);
         try {
             addToFile(al);
         } catch (IOException e) {
