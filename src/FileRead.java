@@ -116,10 +116,19 @@ public class FileRead {
      * return true if all operations done successfully
      * otherwise returns
      */
+    
+    private static String getFileName() {
+    	Scanner s = new Scanner(System.in);
+    	System.out.println("Default type of file is .csv");
+    	System.out.println("Enter File Name: ");
+    	String name = s.nextLine();
+    	name  = name +".csv";
+    	return name;
+    }
 
     private static boolean addToFile(ArrayList<Product> al) throws IOException
     {
-        String file = "File.csv";
+        String file = getFileName();
         FileWriter fw = null;
         try {
             fw = new FileWriter(file);
