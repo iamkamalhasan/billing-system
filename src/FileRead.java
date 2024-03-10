@@ -1,12 +1,12 @@
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.Map.Entry;
 
 
 class Product{
@@ -85,42 +85,28 @@ class Product{
     }
 }
 public class FileRead {
-    private static HashSet<Product> updatedProductList(HashSet<Product> al)
+    private static ArrayList<Product> updatedProductList(ArrayList<Product> al)
     {
         HashMap<Integer, Product> hm = new HashMap<Integer,Product>();
         HashMap<Integer, Integer> hmUpdate = new HashMap<Integer,Integer>();
         
-        
-        int stocks; Product pd;
         for(Product i: al){
-        	
         	if(hm.containsKey(i.getProductID())) {
-        		System.out.println(i.getProductName());
         		hmUpdate.put(i.getProductID(), i.stocks);
         		continue;
         	}
-        	System.out.println(i.getStocks());
         	hm.put(i.getProductID(), i);
         }
 
-        for(java.util.Map.Entry<Integer, Product> entry : hm.entrySet())
+        for(Entry<Integer, Product> entry : hm.entrySet())
         {
-        	for(java.util.Map.Entry<Integer, Integer> entry1 : hmUpdate.entrySet())
+        	for(Entry<Integer, Integer> entry1 : hmUpdate.entrySet())
             {
-        		if(hm.containsKey(entry1.getKey())) {
+        		if(hm.containsKey(entry1.getKey()) && entry.getKey()==entry1.getKey()) {
             		entry.getValue().setStocks(entry1.getValue());
             	}
             }
         }
-        for(java.util.Map.Entry<Integer, Product> entry : hm.entrySet())
-        {
-        	System.out.println(entry.getValue());
-        }
-        for(java.util.Map.Entry<Integer, Integer> entry1 : hmUpdate.entrySet())
-        {
-        		System.out.println(entry1.getKey() +" "+ entry1.getValue());
-        }
-        
         return al;
     }
     /*
@@ -137,6 +123,7 @@ public class FileRead {
         FileWriter fw = null;
         try {
             fw = new FileWriter(file);
+            al = updatedProductList(al);
             al = removeDuplicates(al);
 
             for(Object product : al)
@@ -172,7 +159,6 @@ public class FileRead {
     private static ArrayList<Product> removeDuplicates(ArrayList<Product> al)
     {
         HashSet<Product> ts = new HashSet<>(al);
-        ts = updatedProductList(ts);
         return new ArrayList<Product>(ts);
     }
     public static void main(String[] args) {
